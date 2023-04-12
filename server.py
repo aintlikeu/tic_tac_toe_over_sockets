@@ -1,18 +1,25 @@
 import socket
 import threading
-from services import make_move
+from typing import Tuple
+from services import make_move, is_game_over, board_to_string
 
 CLIENT_SYMBOL = {1: 'X', 2: 'O'}
 
 clients = []
 current_client = None
-current_move = 1
 board = [['_'] * 3 for _ in range(3)]
 
 
-def handle_client(client_socket, address, client_id):
-    global board, current_client, current_move
-    print(f"Connection established with player '{CLIENT_SYMBOL[client_id]}'")
+def handle_client(client_socket: socket.socket, address: Tuple[str, int], client_id: int) -> None:
+    """
+    Handles the client's connection and game logic.
+
+    :param client_socket: A socket object representing the client's connection
+    :param address: A tuple containing the client's IP address and port number
+    :param client_id: An integer representing the client's ID (1 or 2)
+    """
+    global board, current_client
+    print(f"Connection established with player '{CLIENT_SYMBOL[client_id]}, address {address}'")
     message = f"Greetings in Tic-Tac-Toe! You play by '{CLIENT_SYMBOL[client_id]}'. "
 
     if client_id == 1:
@@ -28,7 +35,7 @@ def handle_client(client_socket, address, client_id):
             other_client_socket = [c for c in clients if c != client_socket][0]
 
             if current_client == client_socket:
-                message = f"\nBoard: {board}\nMove #{current_move}. " \
+                message = f"\nBoard:{board_to_string(board)}\nYour move. " \
                           f"Please type row and column (1-3) separated by space: "
                 client_socket.sendall(message.encode())
                 response = client_socket.recv(3)
@@ -41,25 +48,24 @@ def handle_client(client_socket, address, client_id):
                 print(f"Message from client {client_id}: {data}")
                 updated_board = make_move(data, board, CLIENT_SYMBOL[client_id])
 
+                # if the move was correct, update board
                 if updated_board is not None:
                     board = updated_board
+
+                    # check if the game is over
+                    result = is_game_over(board)
+                    if result is not None:
+                        message = f"\n{result}\nFinal board:{board_to_string(board)}"
+                        for c in clients:
+                            c.sendall(message.encode())
+                            c.close()
+                        print(f"Game over. Connection closed with both players")
+                        break
+
+                    # swap current client
+                    message = f"Board after your move:{board_to_string(board)}\nPlease wait"
+                    client_socket.sendall(message.encode())
                     current_client = other_client_socket
-                    current_move += 1
-                    message = "\nPlease wait\n"
-                else:
-                    message = f"\nBoard: {board}\n" \
-                              f"Invalid input. Retry\n"
-
-                client_socket.sendall(message.encode())
-
-                if current_move > 9:
-                    message = f"No more moves. Draw"
-                    client_socket.sendall(message.encode)
-                    other_client_socket.sendall(message.encode)
-                    break
-
-    print(f"Connection closed with player '{CLIENT_SYMBOL[client_id]}'")
-    client_socket.close()
 
 
 def main():
@@ -79,7 +85,7 @@ def main():
         client_thread = threading.Thread(target=handle_client, args=(client_socket, address, clients_connected))
         client_thread.start()
 
-    print("Server has reached the maximum number of players.")
+    print("\nServer has reached the maximum number of players.")
 
 
 if __name__ == '__main__':

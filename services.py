@@ -1,7 +1,13 @@
+from typing import List, Optional
 
-def make_move(message, board, symbol):
+def make_move(message: str, board: List[List[str]], symbol: str) -> Optional[List[List[str]]]:
     """
-    Return the board with the player's move if a move is valid, else return None
+    Return the updated board with the player's move if the move is valid, else return None.
+
+    :param message: A string containing the row and column numbers separated by a space
+    :param board: 3x3 list of lists representing the tic-tac-toe board
+    :param symbol: The player's symbol, either 'X' or 'O'
+    :return: The updated board if the move is valid, otherwise None
     """
     try:
         x, y = map(int, message.split(" "))
@@ -13,55 +19,37 @@ def make_move(message, board, symbol):
     return None
 
 
-# def send_message_with_length(socket, message):
-#     encoded_message = message.encode()
-#     message_length = len(encoded_message)
-#     socket.sendall(message_length.to_bytes(4, 'big'))
-#     socket.sendall(encoded_message)
-#
-#
-# def get_message_with_length(socket):
-#     message_length = int.from_bytes(socket.recv(4), 'big')
-#     response = socket.recv(message_length)
-#     return response.decode()
+def board_to_string(board: List[List[str]]) -> str:
+    """
+    Convert a 3x3 tic-tac-toe board to a formatted string representation.
+
+    :param board: 3x3 list of lists representing the tic-tac-toe board
+    :return: A formatted string representation of the board
+    """
+    return '\n' + '\n'.join([' '.join(row) for row in board]) + '\n'
 
 
-# def print_board(board):
-#     """Print the Tic-Tac-Toe board."""
-#     for row in board:
-#         print(' '.join(row))
-#
+def is_game_over(board: List[List[str]]) -> Optional[str]:
+    """
+    Check if the game is over.
 
-# def get_move(player):
-#     """Get a valid move (row and column) from the current player."""
-#     while True:
-#         try:
-#             x, y = map(int, input(f'Player {player}. Please row and column (1-3) separated by space\n').split())
-#             return x, y
-#         except (ValueError, IndexError):
-#             print('Invalid input. Retry')
+    :param board: 3x3 list of lists representing the tic-tac-toe board
+    :return: A string describing the result if the game is over, otherwise None
+    """
+    # Check if no moves left
+    if not any('_' in row for row in board):
+        return 'Game over. Draw'
 
+    # Check if someone won
+    for symbol in ('X', 'O'):
+        # Check rows and columns
+        for i in range(3):
+            row_check = all(cell == symbol for cell in board[i])
+            col_check = all(cell == symbol for cell in [board[j][i] for j in range(3)])
+            if row_check or col_check:
+                return f'Game over. Won {symbol}'
+        # Check diagonals
+        if all(board[i][i] == symbol for i in range(3)) or all(board[2 - i][i] == symbol for i in range(3)):
+            return f'Game over. Won {symbol}'
 
-# def make_move(player, board):
-#     """Update the board with the player's move."""
-#     while True:
-#         x, y = get_move(player)
-#         if board[x - 1][y - 1] == '_':
-#             board[x - 1][y - 1] = player
-#             return board
-#         print('Please retry')
-
-
-def is_game_over(symbol, board):
-    """Checks if the game ended in a win"""
-    # Check rows and columns
-    for i in range(3):
-        row_check = all(cell == symbol for cell in board[i])
-        col_check = all(cell == symbol for cell in [board[j][i] for j in range(3)])
-        if row_check or col_check:
-            return True
-    # Check diagonals
-    if all(board[i][i] == symbol for i in range(3)) or all(board[2 - i][i] == symbol for i in range(3)):
-        return True
-
-    return False
+    return None

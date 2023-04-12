@@ -10,15 +10,19 @@ def main():
 
     while True:
         response = client_socket.recv(1024)
-
         if not response:
+            print("The server has closed the connection.")
             break
 
         data = response.decode()
         print(f"{data}")
 
         message = ""
-        if not data.startswith("\nPlease wait\n"):
+
+        if data.startswith("\nGame over"):
+            break
+
+        if not data.endswith("\nPlease wait"):
             while not message:
                 message = input("Enter your move (type 'exit' for quit): ")
 
