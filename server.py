@@ -2,6 +2,7 @@ import socket
 import threading
 from typing import Tuple
 from services import make_move, is_game_over, board_to_string
+from config import SERVER_ADDRESS, SERVER_PORT
 
 CLIENT_SYMBOL = {1: 'X', 2: 'O'}
 
@@ -72,7 +73,7 @@ def main():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # reuse address if the OS hasn't released the port yet
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    server_socket.bind(('localhost', 12345))
+    server_socket.bind((SERVER_ADDRESS, SERVER_PORT))
     server_socket.listen(2)
 
     print("Server is listening for incoming connections...")

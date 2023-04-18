@@ -1,9 +1,10 @@
 import socket
+from config import SERVER_ADDRESS, SERVER_PORT
 
 
 def main():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    client_socket.connect(('localhost', 12345))
+    client_socket.connect((SERVER_ADDRESS, SERVER_PORT))
 
     response = client_socket.recv(1024)
     print(f"{response.decode()}")
