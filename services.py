@@ -1,5 +1,14 @@
 from typing import Optional
 
+
+class GameOverException(Exception):
+    pass
+
+
+class WrongMoveException(Exception):
+    pass
+
+
 def make_move(message: str, board: list[list[str]], symbol: str) -> Optional[list[list[str]]]:
     """
     Return the updated board with the player's move if the move is valid, else return None.
@@ -29,16 +38,17 @@ def board_to_string(board: list[list[str]]) -> str:
     return '\n' + '\n'.join([' '.join(row) for row in board]) + '\n'
 
 
-def is_game_over(board: list[list[str]]) -> Optional[str]:
+def is_game_over(board: list[list[str]]) -> bool:
     """
     Check if the game is over.
 
-    :param board: 3x3 list of lists representing the tic-tac-toe board
-    :return: A string describing the result if the game is over, otherwise None
+    :param board: A 3x3 list of lists representing the current state of the game board.
+    :return: False if game is not over
+    :raises GameOverException: If the game is over and a winner is found or it's a draw.
     """
     # Check if no moves left
     if not any('_' in row for row in board):
-        return 'Game over. Draw'
+        raise GameOverException('Game over. Draw')
 
     # Check if someone won
     for symbol in ('X', 'O'):
@@ -47,9 +57,9 @@ def is_game_over(board: list[list[str]]) -> Optional[str]:
             row_check = all(cell == symbol for cell in board[i])
             col_check = all(cell == symbol for cell in [board[j][i] for j in range(3)])
             if row_check or col_check:
-                return f'Game over. Won {symbol}'
+                raise GameOverException(f'Game over. Won {symbol}')
         # Check diagonals
         if all(board[i][i] == symbol for i in range(3)) or all(board[2 - i][i] == symbol for i in range(3)):
-            return f'Game over. Won {symbol}'
+            raise GameOverException(f'Game over. Won {symbol}')
 
-    return None
+    return False
