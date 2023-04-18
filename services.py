@@ -1,6 +1,6 @@
-from typing import List, Optional
+from typing import Optional
 
-def make_move(message: str, board: List[List[str]], symbol: str) -> Optional[List[List[str]]]:
+def make_move(message: str, board: list[list[str]], symbol: str) -> Optional[list[list[str]]]:
     """
     Return the updated board with the player's move if the move is valid, else return None.
 
@@ -19,7 +19,7 @@ def make_move(message: str, board: List[List[str]], symbol: str) -> Optional[Lis
     return None
 
 
-def board_to_string(board: List[List[str]]) -> str:
+def board_to_string(board: list[list[str]]) -> str:
     """
     Convert a 3x3 tic-tac-toe board to a formatted string representation.
 
@@ -29,7 +29,7 @@ def board_to_string(board: List[List[str]]) -> str:
     return '\n' + '\n'.join([' '.join(row) for row in board]) + '\n'
 
 
-def is_game_over(board: List[List[str]]) -> Optional[str]:
+def is_game_over(board: list[list[str]]) -> Optional[str]:
     """
     Check if the game is over.
 
