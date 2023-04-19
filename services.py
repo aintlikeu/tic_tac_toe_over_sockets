@@ -1,12 +1,5 @@
 from typing import Optional
-
-
-class GameOverException(Exception):
-    pass
-
-
-class WrongMoveException(Exception):
-    pass
+from exceptions import GameOverException
 
 
 def make_move(message: str, board: list[list[str]], symbol: str) -> Optional[list[list[str]]]:
