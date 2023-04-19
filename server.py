@@ -1,19 +1,22 @@
 import socket
 import threading
-from services import make_move, is_game_over, board_to_string, GameOverException, WrongMoveException
+from dataclasses import dataclass
+from services import make_move, is_game_over, board_to_string
+from exceptions import GameOverException, WrongMoveException
 from config import SERVER_ADDRESS, SERVER_PORT, CLIENT_SYMBOL
 
 
-class GameState:
-    def __init__(self):
-        """
-        A class representing the game state.
 
-        The game state includes the list of connected clients, the current client, and the game board.
-        """
-        self.clients = []
-        self.current_client = None
-        self.board = [['_'] * 3 for _ in range(3)]
+@dataclass
+class GameState:
+    """
+    A data class that represents the game state.
+
+    The game state includes the list of connected clients, the current client, and the game board.
+    """
+    clients = []
+    current_client = None
+    board = [['_'] * 3 for _ in range(3)]
 
 
 def send_greeting(client_id: int, client_socket: socket.socket) -> None:
